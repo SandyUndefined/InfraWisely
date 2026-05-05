@@ -1,0 +1,27 @@
+{
+  "model_name": "RandomForestRegressor",
+  "target_column": "predicted_ev_load_kw",
+  "feature_columns": [
+    "hour",
+    "time_period",
+    "is_peak_hour",
+    "zone_type",
+    "ev_count_estimate",
+    "traffic_score",
+    "existing_chargers",
+    "demand_growth_rate",
+    "transformer_capacity_kw",
+    "base_grid_load_kw"
+  ],
+  "row_count": 480,
+  "train_rows": 384,
+  "test_rows": 96,
+  "mae": 56.6194,
+  "rmse": 69.133,
+  "r2_score": 0.851304,
+  "baseline_mae": 146.5136,
+  "baseline_rmse": 179.3555,
+  "baseline_r2": -0.00082,
+  "improvement_over_baseline_mae_percent": 61.36,
+  "improvement_over_baseline_rmse_percent": 61.45
+}

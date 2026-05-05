@@ -1,0 +1,21 @@
+zone_id,zone_name,max_risk_score,avg_risk_score,max_model_load_ratio,critical_hours_count,high_hours_count,overloaded_hours_count,peak_hour_avg_risk_score,worst_hour,worst_time_period,worst_risk_level,zone_priority
+Z006,Jayanagar,100.0,86.38,1.331,6,4,6,100.0,19,Evening Peak,Critical,Very High
+Z001,Whitefield,100.0,86.12,1.227,7,6,7,100.0,21,Evening Peak,Critical,Very High
+Z016,Sarjapur Road,100.0,85.82,1.216,8,5,8,100.0,21,Evening Peak,Critical,Very High
+Z008,Yelahanka,100.0,85.58,1.436,6,4,6,100.0,20,Evening Peak,Critical,Very High
+Z005,MG Road,100.0,85.4,1.096,8,5,8,97.88,17,Evening Peak,Critical,Very High
+Z010,Rajajinagar,100.0,84.43,1.146,6,6,6,100.0,22,Evening Peak,Critical,Very High
+Z013,HSR Layout,100.0,83.5,1.302,6,1,6,100.0,21,Evening Peak,Critical,Very High
+Z007,Hebbal,100.0,83.12,1.153,6,3,6,100.0,19,Evening Peak,Critical,Very High
+Z003,Koramangala,100.0,82.58,1.137,6,2,6,100.0,19,Evening Peak,Critical,Very High
+Z019,Bellandur,100.0,80.79,1.104,6,2,6,100.0,18,Evening Peak,Critical,Very High
+Z002,Indiranagar,100.0,79.78,1.186,6,0,6,100.0,22,Evening Peak,Critical,Very High
+Z009,BTM Layout,100.0,79.28,1.296,6,0,6,100.0,21,Evening Peak,Critical,Very High
+Z020,Kengeri,100.0,76.76,1.145,6,0,6,100.0,17,Evening Peak,Critical,Very High
+Z011,Marathahalli,100.0,75.82,1.028,4,2,4,99.55,22,Evening Peak,Critical,Very High
+Z012,Banashankari,100.0,74.88,1.232,6,0,6,100.0,20,Evening Peak,Critical,Very High
+Z015,Malleshwaram,100.0,69.82,1.042,4,2,4,98.62,19,Evening Peak,Critical,Very High
+Z017,Peenya,100.0,80.62,1.008,1,7,1,97.33,17,Evening Peak,Critical,High
+Z014,KR Puram,99.9,75.07,0.999,0,6,0,95.62,18,Evening Peak,High,High
+Z018,Majestic,89.8,70.89,0.898,0,0,0,83.8,20,Evening Peak,Medium,Low
+Z004,Electronic City,82.1,66.95,0.821,0,0,0,76.97,19,Evening Peak,Medium,Low

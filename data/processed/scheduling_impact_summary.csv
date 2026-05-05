@@ -1,0 +1,2 @@
+total_shifted_load_kw,total_allocated_shift_kw,total_unallocated_shift_kw,before_peak_total_load_kw,after_peak_total_load_kw,peak_load_reduction_kw,peak_load_reduction_percent,before_critical_hours,after_critical_hours,before_high_hours,after_high_hours,before_overloaded_hours,after_overloaded_hours,feasible_recommendations,partial_recommendations,limited_recommendations
+24428.24,24212.91,215.33,226062.17,201849.26,24212.91,10.71,98,47,55,103,98,47,107,1,0

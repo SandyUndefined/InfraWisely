@@ -1,0 +1,21 @@
+zone_id,zone_name,feeder_id,transformer_id,substation_name,zone_type,transformer_capacity_kw,base_load_kw,current_peak_load_kw,spare_capacity_kw,load_ratio,grid_health_score,grid_capacity_status
+Z001,Whitefield,FDR-001,DTR-001,Whitefield S/S,mixed,1307,768,1181,126,0.904,9.64,Constrained
+Z002,Indiranagar,FDR-002,DTR-002,Indiranagar S/S,residential,1597,941,1079,518,0.676,32.44,Healthy
+Z003,Koramangala,FDR-003,DTR-003,Koramangala S/S,mixed,1832,1195,1620,212,0.884,11.57,Constrained
+Z004,Electronic City,FDR-004,DTR-004,Electronic City S/S,industrial,3166,1835,2622,544,0.828,17.18,Moderate
+Z005,MG Road,FDR-005,DTR-005,MG Road S/S,commercial,2000,1463,1722,278,0.861,13.9,Constrained
+Z006,Jayanagar,FDR-006,DTR-006,Jayanagar S/S,residential,1234,758,950,284,0.77,23.01,Moderate
+Z007,Hebbal,FDR-007,DTR-007,Hebbal S/S,mixed,1741,1064,1213,528,0.697,30.33,Healthy
+Z008,Yelahanka,FDR-008,DTR-008,Yelahanka S/S,residential,1104,680,906,198,0.821,17.93,Moderate
+Z009,BTM Layout,FDR-009,DTR-009,BTM S/S,residential,1048,546,956,92,0.912,8.78,Constrained
+Z010,Rajajinagar,FDR-010,DTR-010,Rajajinagar S/S,mixed,2110,1432,1862,248,0.882,11.75,Constrained
+Z011,Marathahalli,FDR-011,DTR-011,Marathahalli S/S,mixed,2112,1253,1460,652,0.691,30.87,Healthy
+Z012,Banashankari,FDR-012,DTR-012,Banashankari S/S,residential,1075,517,897,178,0.834,16.56,Moderate
+Z013,HSR Layout,FDR-013,DTR-013,HSR S/S,residential,1731,1114,1277,454,0.738,26.23,Moderate
+Z014,KR Puram,FDR-014,DTR-014,KR Puram S/S,mixed,2094,1202,1680,414,0.802,19.77,Moderate
+Z015,Malleshwaram,FDR-015,DTR-015,Malleshwaram S/S,residential,1616,769,1258,358,0.778,22.15,Moderate
+Z016,Sarjapur Road,FDR-016,DTR-016,Sarjapur S/S,mixed,1427,778,1219,208,0.854,14.58,Constrained
+Z017,Peenya,FDR-017,DTR-017,Peenya S/S,industrial,3117,2311,2768,349,0.888,11.2,Constrained
+Z018,Majestic,FDR-018,DTR-018,Majestic S/S,commercial,1925,1113,1748,177,0.908,9.19,Constrained
+Z019,Bellandur,FDR-019,DTR-019,Bellandur S/S,mixed,1722,994,1300,422,0.755,24.51,Moderate
+Z020,Kengeri,FDR-020,DTR-020,Kengeri S/S,residential,1625,953,1118,507,0.688,31.2,Healthy

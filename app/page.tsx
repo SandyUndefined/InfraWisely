@@ -42,6 +42,11 @@ type Series = {
   points: Point[];
 };
 
+type ActionPlan = {
+  alert: StressAlert;
+  schedule?: ScheduleRecommendation;
+};
+
 const ALL_ZONES = "All Zones";
 
 function riskVariant(risk?: string) {
@@ -81,6 +86,31 @@ function aggregateByHour<T extends { hour: number }>(
   return Array.from(groups.entries())
     .sort(([a], [b]) => a - b)
     .map(([hour, value]) => ({ hour, value: Number(value.toFixed(2)) }));
+}
+
+function actionKey(row: StressAlert) {
+  return `${row.zone_id}-${row.hour}`;
+}
+
+function scheduleForAlert(alert: StressAlert, schedules: ScheduleRecommendation[]) {
+  return schedules.find((schedule) => schedule.zone_id === alert.zone_id && schedule.peak_hour === alert.hour);
+}
+
+function actionPlanText(plan: ActionPlan) {
+  const schedule = plan.schedule;
+  return [
+    "InfraWisely Operator Action Plan",
+    "",
+    `Zone: ${plan.alert.zone_name}`,
+    `Peak hour: ${formatHour(plan.alert.hour)}`,
+    `Risk ratio: ${formatNumber(plan.alert.model_load_ratio)}`,
+    `Why it is critical: ${plan.alert.risk_reason}`,
+    `Recommended load shift: ${schedule ? formatNumber(schedule.allocated_shift_kw || schedule.shifted_load_kw, " kW") : "No matching schedule recommendation"}`,
+    `Off-peak charging window: ${schedule?.recommended_offpeak_hours || "No feasible off-peak window found"}`,
+    `Expected peak reduction: ${schedule ? `${formatNumber(schedule.expected_peak_load_reduction_kw, " kW")} / ${formatNumber(schedule.expected_peak_load_reduction_percent, "%")}` : "-"}`,
+    "",
+    "Operator note: Decision-support only. No grid system modification."
+  ].join("\n");
 }
 
 function LineChart({ series, unit }: { series: Series[]; unit: string }) {
@@ -295,7 +325,17 @@ function KpiCard({
   );
 }
 
-function StressTable({ rows }: { rows: StressAlert[] }) {
+function StressTable({
+  rows,
+  schedules,
+  reviewedKeys,
+  onOpenActionPlan
+}: {
+  rows: StressAlert[];
+  schedules: ScheduleRecommendation[];
+  reviewedKeys: Set<string>;
+  onOpenActionPlan: (plan: ActionPlan) => void;
+}) {
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -309,19 +349,130 @@ function StressTable({ rows }: { rows: StressAlert[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.slice(0, 10).map((row) => (
-            <TableRow key={`${row.zone_id}-${row.hour}`}>
-              <TableCell className="font-medium">{row.zone_name}</TableCell>
-              <TableCell>{formatHour(row.hour)}</TableCell>
-              <TableCell>
-                <Badge variant={riskVariant(row.model_risk_level)}>{row.model_risk_level}</Badge>
-              </TableCell>
-              <TableCell className="text-right">{formatNumber(row.model_load_ratio)}</TableCell>
-              <TableCell className="min-w-[220px]">{row.action_priority}</TableCell>
-            </TableRow>
-          ))}
+          {rows.slice(0, 10).map((row) => {
+            const key = actionKey(row);
+            const reviewed = reviewedKeys.has(key);
+            return (
+              <TableRow key={key}>
+                <TableCell className="font-medium">{row.zone_name}</TableCell>
+                <TableCell>{formatHour(row.hour)}</TableCell>
+                <TableCell>
+                  <Badge variant={riskVariant(row.model_risk_level)}>{row.model_risk_level}</Badge>
+                </TableCell>
+                <TableCell className="text-right">{formatNumber(row.model_load_ratio)}</TableCell>
+                <TableCell className="min-w-[210px]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onOpenActionPlan({ alert: row, schedule: scheduleForAlert(row, schedules) })}
+                    >
+                      View Action Plan
+                    </Button>
+                    {reviewed ? <Badge variant="success">Reviewed</Badge> : null}
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
+    </div>
+  );
+}
+
+function ActionPlanModal({
+  plan,
+  reviewed,
+  onClose,
+  onMarkReviewed
+}: {
+  plan: ActionPlan;
+  reviewed: boolean;
+  onClose: () => void;
+  onMarkReviewed: () => void;
+}) {
+  const schedule = plan.schedule;
+
+  function exportReport() {
+    const blob = new Blob([actionPlanText(plan)], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `action-plan-${plan.alert.zone_id}-${plan.alert.hour}.txt`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-950/45 p-4">
+      <div className="w-full max-w-2xl rounded-lg border border-border bg-card shadow-xl">
+        <div className="flex items-start justify-between gap-4 border-b border-border p-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+              <h2 className="text-lg font-semibold">Operator Action Plan</h2>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {plan.alert.zone_name} / {formatHour(plan.alert.hour)}
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+
+        <div className="grid gap-4 p-5 sm:grid-cols-2">
+          <div className="rounded-md border border-border p-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Zone name</p>
+            <p className="mt-1 font-semibold">{plan.alert.zone_name}</p>
+          </div>
+          <div className="rounded-md border border-border p-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Peak hour</p>
+            <p className="mt-1 font-semibold">{formatHour(plan.alert.hour)}</p>
+          </div>
+          <div className="rounded-md border border-border p-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Risk ratio</p>
+            <p className="mt-1 font-semibold">{formatNumber(plan.alert.model_load_ratio)}</p>
+          </div>
+          <div className="rounded-md border border-border p-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Recommended load shift</p>
+            <p className="mt-1 font-semibold">
+              {schedule ? formatNumber(schedule.allocated_shift_kw || schedule.shifted_load_kw, " kW") : "-"}
+            </p>
+          </div>
+          <div className="rounded-md border border-border p-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Off-peak charging window</p>
+            <p className="mt-1 font-semibold">{schedule?.recommended_offpeak_hours || "No feasible off-peak window found"}</p>
+          </div>
+          <div className="rounded-md border border-border p-3">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Expected peak reduction</p>
+            <p className="mt-1 font-semibold">
+              {schedule
+                ? `${formatNumber(schedule.expected_peak_load_reduction_kw, " kW")} / ${formatNumber(schedule.expected_peak_load_reduction_percent, "%")}`
+                : "-"}
+            </p>
+          </div>
+          <div className="rounded-md border border-border p-3 sm:col-span-2">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Why it is critical</p>
+            <p className="mt-2 text-sm leading-6">{plan.alert.risk_reason}</p>
+          </div>
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 sm:col-span-2">
+            Operator note: Decision-support only. No grid system modification.
+          </div>
+        </div>
+
+        <div className="flex flex-col-reverse gap-2 border-t border-border p-5 sm:flex-row sm:justify-end">
+          <Button variant="outline" onClick={exportReport}>
+            Export Report
+          </Button>
+          <Button onClick={onMarkReviewed} disabled={reviewed}>
+            Mark Reviewed
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -422,6 +573,8 @@ export default function DashboardPage() {
   const [prediction, setPrediction] = useState<number | null>(null);
   const [predictionError, setPredictionError] = useState<string | null>(null);
   const [predicting, setPredicting] = useState(false);
+  const [activeActionPlan, setActiveActionPlan] = useState<ActionPlan | null>(null);
+  const [reviewedActionKeys, setReviewedActionKeys] = useState<Set<string>>(() => new Set());
 
   async function load() {
     setLoading(true);
@@ -503,9 +656,16 @@ export default function DashboardPage() {
 
   const summary = data.summary;
   const selectedStation = scopedStations[0];
+  const topStation = data.stations[0];
   const zoneLabel = selectedZone === ALL_ZONES ? `${summary.total_zones} zones` : selectedZone;
   const criticalDelta = `${summary.critical_hours_before} -> ${summary.critical_hours_after}`;
   const overloadDelta = `${summary.overloaded_hours_before} -> ${summary.overloaded_hours_after}`;
+  const stationKpiValue = selectedZone === ALL_ZONES
+    ? summary.top_priority_station_zone
+    : selectedStation?.zone_name || selectedZone;
+  const stationKpiNote = selectedZone === ALL_ZONES
+    ? `${topStation?.recommended_station_type || "Top priority"} / ${topStation?.recommended_chargers ?? summary.total_recommended_chargers} chargers`
+    : `${selectedStation?.recommended_station_type || "Monitor Only"} / ${selectedStation?.recommended_chargers ?? 0} chargers`;
 
   return (
     <main className="min-h-screen">
@@ -543,7 +703,7 @@ export default function DashboardPage() {
           <KpiCard label="Coverage" value={zoneLabel} note={`${summary.total_existing_chargers} existing chargers`} icon={MapPin} />
           <KpiCard label="Model R2" value={formatNumber(summary.model_r2_score)} note={`${summary.model_version || "v2"} / MAE ${summary.model_mae} kW`} icon={BarChart3} />
           <KpiCard label="Peak Reduction" value={`${summary.peak_load_reduction_percent}%`} note={`Critical ${criticalDelta}`} icon={Activity} />
-          <KpiCard label="Station Plan" value={selectedStation?.recommended_station_type || summary.top_priority_station_zone} note={`${selectedStation?.recommended_chargers ?? summary.total_recommended_chargers} recommended chargers`} icon={Building2} />
+          <KpiCard label="Station Plan" value={stationKpiValue} note={stationKpiNote} icon={Building2} />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
@@ -568,7 +728,12 @@ export default function DashboardPage() {
               <CardDescription>{scopedAlerts.length} high-risk records in the selected view</CardDescription>
             </CardHeader>
             <CardContent>
-              <StressTable rows={scopedAlerts} />
+              <StressTable
+                rows={scopedAlerts}
+                schedules={data.schedules}
+                reviewedKeys={reviewedActionKeys}
+                onOpenActionPlan={setActiveActionPlan}
+              />
             </CardContent>
           </Card>
         </section>
@@ -711,6 +876,18 @@ export default function DashboardPage() {
           API base: {process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000"}
         </footer>
       </div>
+      {activeActionPlan ? (
+        <ActionPlanModal
+          plan={activeActionPlan}
+          reviewed={reviewedActionKeys.has(actionKey(activeActionPlan.alert))}
+          onClose={() => setActiveActionPlan(null)}
+          onMarkReviewed={() => {
+            const key = actionKey(activeActionPlan.alert);
+            setReviewedActionKeys((current) => new Set(current).add(key));
+            setActiveActionPlan(null);
+          }}
+        />
+      ) : null}
     </main>
   );
 }

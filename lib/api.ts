@@ -102,6 +102,7 @@ export type ScheduleRecommendation = {
   unallocated_shift_kw: number;
   recommended_offpeak_hours: string;
   feasibility_status: string;
+  expected_peak_load_reduction_kw: number;
   expected_peak_load_reduction_percent: number;
   explanation: string;
 };
@@ -181,27 +182,7 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
-  const [
-    summary,
-    zones,
-    demand,
-    loadCurve,
-    alerts,
-    schedules,
-    stations,
-    explainability
-  ] = await Promise.all([
-    getJson<Summary>("/api/summary"),
-    getJson<Zone[]>("/api/map-zones"),
-    getJson<DemandRow[]>("/api/canonical-demand-forecast"),
-    getJson<LoadCurveRow[]>("/api/load-curve"),
-    getJson<StressAlert[]>("/api/grid-stress-alerts?limit=50"),
-    getJson<ScheduleRecommendation[]>("/api/scheduling-recommendations?limit=200"),
-    getJson<StationRecommendation[]>("/api/station-recommendations?limit=50"),
-    getJson<Explainability>("/api/model-explainability")
-  ]);
-
-  return { summary, zones, demand, loadCurve, alerts, schedules, stations, explainability };
+  return getJson<DashboardData>("/api/dashboard-data");
 }
 
 export async function predictDemand(payload: PredictDemandRequest) {
@@ -222,4 +203,3 @@ export async function predictDemand(payload: PredictDemandRequest) {
     feature_columns: string[];
   }>;
 }
-

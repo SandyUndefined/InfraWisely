@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 44 33% 97%;
+  --foreground: 220 15% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 15% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 15% 13%;
+  --primary: 184 76% 28%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 38 53% 92%;
+  --secondary-foreground: 220 15% 13%;
+  --muted: 210 18% 92%;
+  --muted-foreground: 216 10% 43%;
+  --accent: 145 33% 89%;
+  --accent-foreground: 156 42% 22%;
+  --destructive: 6 62% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 17% 84%;
+  --input: 214 17% 84%;
+  --ring: 184 76% 28%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+svg text {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.zone-marker {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.32);
+}
+
+.zone-marker-selected {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #fff;
+  outline: 3px solid hsl(var(--primary));
+}
+
+.zone-tooltip {
+  border: 0;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgb(15 23 42 / 0.16);
+  color: hsl(var(--foreground));
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}

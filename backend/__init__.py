@@ -1,0 +1,2 @@
+"""InfraWisely FastAPI backend package."""
+

@@ -58,7 +58,9 @@ export type DemandRow = {
   final_model_predicted_ev_load_kw?: number;
   model_total_load_kw?: number;
   final_model_total_load_kw?: number;
+  model_load_ratio?: number;
   final_model_load_ratio?: number;
+  model_risk_level?: string;
   final_model_risk_level?: string;
 };
 
@@ -101,10 +103,13 @@ export type ScheduleRecommendation = {
   allocated_shift_kw: number;
   unallocated_shift_kw: number;
   recommended_offpeak_hours: string;
+  recommended_offpeak_hours_label?: string;
   feasibility_status: string;
   expected_peak_load_reduction_kw: number;
   expected_peak_load_reduction_percent: number;
   explanation: string;
+  recommendation_text?: string;
+  peak_hour_label?: string;
 };
 
 export type StationRecommendation = {
@@ -123,6 +128,16 @@ export type StationRecommendation = {
   recommended_chargers: number;
   planning_priority: string;
   capital_planning_flag: string;
+};
+
+export type ExistingCharger = {
+  sl_no: number;
+  charger_code: string;
+  station_name: string;
+  charger_model: string;
+  area: string;
+  source_page: number;
+  parse_status: string;
 };
 
 export type Explainability = {
@@ -151,6 +166,7 @@ export type DashboardData = {
   alerts: StressAlert[];
   schedules: ScheduleRecommendation[];
   stations: StationRecommendation[];
+  chargers: ExistingCharger[];
   explainability: Explainability;
 };
 

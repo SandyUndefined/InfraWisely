@@ -17,6 +17,7 @@ PROCESSED_DIR = ROOT_DIR / "data" / "processed"
 MODEL_DIR = ROOT_DIR / "models"
 MODEL_PATH = MODEL_DIR / "ev_demand_model_v2.pkl"
 MODEL_METRICS_PATH = MODEL_DIR / "ev_demand_model_v2_metrics.json"
+CHARGERS_PATH = PROCESSED_DIR / "bescom_chargers_clean.csv"
 
 CANONICAL_MODEL_FEATURES = [
     "hour",
@@ -450,6 +451,22 @@ def create_map_zones(zone_summary: Any, station_recs: Any) -> Any:
     return map_df
 
 
+def create_existing_chargers() -> list[dict[str, Any]]:
+    pd = load_pandas()
+    require_file(CHARGERS_PATH)
+    chargers = pd.read_csv(CHARGERS_PATH)
+    columns = [
+        "sl_no",
+        "charger_code",
+        "station_name",
+        "charger_model",
+        "area",
+        "source_page",
+        "parse_status",
+    ]
+    return dataframe_records(chargers[columns])
+
+
 def create_summary(
     demand: Any,
     zone_summary: Any,
@@ -579,6 +596,7 @@ def dynamic_snapshot() -> dict[str, Any]:
         "alerts": dataframe_records(high_alerts),
         "schedules": dataframe_records(schedules),
         "stations": dataframe_records(stations),
+        "chargers": create_existing_chargers(),
         "explainability": create_explainability(summary),
         "storyline": create_storyline(summary),
         "schedulingImpact": dataframe_records(impact)[0] if len(impact) else {},
@@ -630,6 +648,20 @@ def zones() -> list[dict[str, Any]]:
     path = PROCESSED_DIR / "zones_master.csv"
     require_file(path)
     return dataframe_records(pd.read_csv(path))
+
+
+@app.get("/api/existing-chargers")
+def existing_chargers(
+    area: Optional[str] = None,
+    include_unknown: bool = False,
+    limit: int = Query(default=500, ge=1, le=1000),
+) -> list[dict[str, Any]]:
+    records = create_existing_chargers()
+    if area:
+        records = [row for row in records if row.get("area") == area]
+    elif not include_unknown:
+        records = [row for row in records if row.get("area") != "Unknown"]
+    return records[:limit]
 
 
 @app.get("/api/demand-forecast")
